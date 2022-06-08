@@ -11,6 +11,13 @@ function tokens(n) {
     return web3.utils.toWei(n, 'ether');
 }
 
+
+// REVIEW -> Tests' logic looks good :)
+// However as another good practice we may separate the into more granular tests (instead of asserting that many things inside the it('rewards investors for staking cosmic LP tokens',)
+// This is one more suggestion for organization and clarity's sake, because your tests are correct regardless 
+// Also try to test the CHECKS/requires in all of your methods (Although in this case it's very straight forward to assure it will work, it's also a good practice)
+
+
 contract('TokenFarm', ([owner, investor]) => {
     let cosmicLPT, cosmicToken, tokenFarm
 

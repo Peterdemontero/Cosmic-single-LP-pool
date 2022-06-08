@@ -1,6 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.5.16;
 
+
+// REVIEW -> This looks pretty good Peter, just a few suggestion:
+
+// 1st (Check stake/unstake methods)
+
+// 2nd Function issueTokens seems to be correctly implemented, however, we need a way to automate token issue every few blocks
+// My suggestion is something like the following
+// Use Chainlink Keepers to enable your smart contract to be automatically called every x minutes (see: https://docs.chain.link/docs/chainlink-keepers/introduction/)
+// Verify if a certain number of blocks has been elapsed (using checkUpkeepNeeded function)
+// If yes, run function issueTokens inside performUpKeep (the example from Chainlink should be quite similar too what we need) 
+
+
+
 import "./CosmicToken.sol";
 import "./CosmicLPT.sol";
 
@@ -22,6 +35,23 @@ contract TokenFarm {
         owner = msg.sender;
     }
 
+    // REVIEW -> stakeTokens and unstakeTokens logic is correct, there's just a good practice pattern that's usually followed when writting solidity code callse CHECKS->EFFECTS->INTERACTIONS
+    // (see: https://medium.com/returnvalues/smart-contract-security-patterns-79e03b5a1659)
+    // Although I don't think this is a major security issue in this particular case, it's best to always follow this approach :)
+    // My suggestion therefore is to rewrite this functions like the following:
+    // CHECKS
+    // require(_amount > 0, "amount cannot be 0");
+    // EFFECTS
+    // if(!hasStaked[msg.sender]) {
+    //      stakers.push(msg.sender);
+    //  }
+    // stakingBalance[msg.sender] = stakingBalance[msg.sender] + _amount;
+    // isStaking[msg.sender] = true;
+    // hasStaked[msg.sender] = true;
+    // INTERACTIONS
+    // cosmicLPT.transferFrom(msg.sender, address(this), _amount);
+
+
     function stakeTokens(uint _amount) public {
         // Require amount greater than 0
         require(_amount > 0, "amount cannot be 0");
@@ -41,6 +71,9 @@ contract TokenFarm {
         isStaking[msg.sender] = true;
         hasStaked[msg.sender] = true;
     }
+
+
+    // REVIEW -> Same approach as stakeTokenFunction
 
     // Unstaking Tokens (Withdraw)
     function unstakeTokens() public {
